@@ -1,13 +1,13 @@
 import os
 import struct
 import numpy as np
+import math
 
-"""Code taken from https://gist.github.com/akesling/5358964
-"""
+
 
 def read_mnist(dataset = "training", path = "/home/anand/store/datasets/mnist"):
     """Reads the mnist binary files and returns the labels and images
-    
+       Code taken from https://gist.github.com/akesling/5358964
     Arguments:
       dataset: whether 'training' or 'testing'
       path: where the mnist binaries reside
@@ -36,4 +36,32 @@ def read_mnist(dataset = "training", path = "/home/anand/store/datasets/mnist"):
         img = np.fromfile(fimg, dtype=np.uint8).reshape(len(lbl), rows, cols)
 
     return lbl, img
+
+
+def read_mnist_normalized(dataset = "training", path = "/home/anand/store/datasets/mnist"):
+    labels, images = read_mnist(dataset, path)
+
+    labels_expanded = []
+    for l in labels:
+        a = np.zeros((10, ))
+        a[l] = 1
+        labels_expanded.append(a)
+        
+    labels = np.array(labels_expanded)
+    images = images.reshape(images.shape[0], 784,)
+    images = images/255
+
+    return labels, images
+
+def batches(batch_size, features, labels):
+    assert len(features) == len(labels)
+    outout_batches = []
+                    
+    sample_size = len(features)
+    for start_i in range(0, sample_size, batch_size):
+        end_i = start_i + batch_size
+        batch = [features[start_i:end_i], labels[start_i:end_i]]
+        outout_batches.append(batch)
+                            
+    return outout_batches
 
